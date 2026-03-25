@@ -212,49 +212,60 @@ int DoublyLinkedCyclicList::getData(Node* q) const {
 }
 
 // Проверка соседей элемента на одинаковость
-void DoublyLinkedCyclicList::checkNeighbors() {
-	using namespace std;
-    if (isEmpty() || count < 2) {
-        cout << "Слишком мало элементов в списке\n";
-        return;
+Node* DoublyLinkedCyclicList::checkNeighbors() {
+    using namespace std;
+
+    if (isEmpty()) {
+        cout << "Список пуст" << endl;
+        return nullptr;
     }
 
-    Node* current = head->next;
-    Node* toDelete;
-    int deleted = 0;
-
-    if (head->next->data == head->prev->data) {
-        toDelete = head;
-        head->prev->next = head->next;
-        head->next->prev = head->prev;
-        head = head->next;
-        delete toDelete;
-        current = head->next;
-
-        deleted++;
-        count--;
+    if (head->next == head) {
+        delete head;
+        head = nullptr;
+        cout << "Удален последний элемент" << endl;
+        return nullptr;
     }
 
-    while (current != head) {
-        if (current->next->data == current->prev->data) {
-            toDelete = current;
-            current->prev->next = current->next;
-            current->next->prev = current->prev;
-            current = current->next->next;
-            delete toDelete;
+    if (head->next->next == head) {
+        clear();
+        cout << "Все элементы удалены" << endl;
+        return nullptr;
+    }
 
-            deleted++;
-            count--;
+    bool found = false;
+    Node* current = head;
+
+    do {
+        if (current->prev->getData() == current->next->getData()) {
+            found = true;
+            break;
         }
-        else {
-            current = current->next;
-        }
+        current = current->next;
+    } while (current != head);
+
+    if (!found) {
+        cout << "Элементов с равными соседями не найдено" << endl;
+        return head->prev;
     }
 
-	if (deleted == 0) {
-		cout << "\n\nЭлементов с равными соседями не найдено";
-	}
-	cout << "\nПоследний элемент: " << head->prev;
+    Node* toDelete = current;
+    Node* nextNode = current->next;
+
+    toDelete->prev->next = toDelete->next;
+    toDelete->next->prev = toDelete->prev;
+
+    if (toDelete == head) {
+        head = nextNode;
+    }
+
+    delete toDelete;
+
+    if (!isEmpty()) {
+        return checkNeighbors();
+    }
+
+    return nullptr;
 }
 
 // Вывод 
@@ -308,7 +319,7 @@ void DoublyLinkedCyclicList::FromListToFile() {
 }
 
 // максимальная невозрастающая последовательность
-void DoublyLinkedCyclicList::MaxSequence(std::vector<int>& result) const{
+void DoublyLinkedCyclicList::MaxSequence() {
     using namespace std;
 
     if (isEmpty()) {
@@ -316,7 +327,6 @@ void DoublyLinkedCyclicList::MaxSequence(std::vector<int>& result) const{
         return;
     }
 
-    // Сохраняем все элементы в вектор
     vector<int> arr;
     Node* current = head;
     do {
@@ -326,16 +336,13 @@ void DoublyLinkedCyclicList::MaxSequence(std::vector<int>& result) const{
 
     int n = arr.size();
 
-    // Поиск максимальной последовательности с учетом цикличности
     int maxLen = 1;
     int bestStart = 0;
 
-    // Проверяем каждую возможную начальную позицию
     for (int start = 0; start < n; start++) {
         int len = 1;
         int idx = start;
 
-        // Идем вперед, пока последовательность невозрастающая
         while (len < n && arr[(idx + 1) % n] <= arr[idx]) {
             len++;
             idx = (idx + 1) % n;
@@ -346,14 +353,16 @@ void DoublyLinkedCyclicList::MaxSequence(std::vector<int>& result) const{
             bestStart = start;
         }
 
-        // Если нашли последовательность длиной n, дальше искать смысла нет
         if (maxLen == n) break;
     }
 
+    clear();
+
     for (int i = 0; i < maxLen; i++) {
         int num = arr[(bestStart + i) % n];
-        result.push_back(num);
+        pushBack(num); 
     }
+
 }
 
 
