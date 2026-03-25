@@ -118,13 +118,13 @@ public:
 	bool isEmpty() const { return head == nullptr; }
 
 	// Проверка соседей элемента на одинаковость
-	void checkNeighbors();
+	Node* checkNeighbors();
 
 	void FromListToFile();	// вывод в файл
 	void print() const;		// вывод
 
 	// нахождение максимальной невозрастающей последовательности
-	void MaxSequence(std::vector<int>& result) const;
+	void MaxSequence();
 };
 
 
