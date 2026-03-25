@@ -271,45 +271,58 @@ void CyclicList::FromListToFile() {
 void CyclicList::OutputToFile() {
     using namespace std;
 
-    int cnt = 1;
-    string filename;
-    cout << endl;
-    filename = getText();
+    string filename = getText();
     ofstream file(filename);
 
     if (!file.is_open()) {
         cout << "Ошибка открытия файла!";
+        return;
     }
 
-    Node* current = head->next;
-    Node* previous = head;
-    Node* toDelete;
-
-    file << "Список: ";
-    file << head->data << " ";
-
-    while (current != head) {
-        if (cnt % 4 == 0) {
-            file << current->data << " ";
-            toDelete = current;
-            previous->next = current->next;
-            current = previous->next;
-
-            delete toDelete;
-            count--;
-        }
-        else {
-            previous = current;
-            current = current->next;
-        }
-        cnt++;
+    if (head == nullptr) {
+        file << "Список пуст!";
+        file.close();
+        return;
     }
 
-    previous->next = head->next;
-    toDelete = head;
-    head = head->next;
-    delete toDelete;
-    count--;
+    int step = 1;
+    int n = count;
 
+    Node* current = head;
+    Node* prev = nullptr;
+
+    Node* last = head;
+    while (last->next != head) {
+        last = last->next;
+    }
+    prev = last;
+
+    while (n > 0) {
+        file << current->data << " ";
+
+        Node* toDelete = current;
+        prev->next = current->next;
+        current = current->next;
+
+        if (toDelete == head) {
+            head = current;
+        }
+
+        delete toDelete;
+        n--;
+        step++;
+
+        if (n > 0) {
+            for (int i = 0; i < 3; i++) {  
+                prev = current;
+                current = current->next;
+            }
+        }
+    }
+
+    head = nullptr;
+    count = 0;
     file.close();
+
+    cout << "Результат записан в файл\n";
 }
